@@ -24,7 +24,19 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>React App</title>
+    <title>AI Chief of Staff</title>
+    <style>iframe[style*="fixed"] { display: none !important; }</style>
+    <script>
+      // Kill the CRA error overlay before it loads
+      Object.defineProperty(window, '__REACT_ERROR_OVERLAY_GLOBAL_HOOK__', { get: () => undefined });
+      window.addEventListener('error', function(e) {
+        if (e.message && e.message.indexOf('ResizeObserver') !== -1) {
+          e.stopImmediatePropagation();
+          e.stopPropagation();
+          e.preventDefault();
+        }
+      }, true);
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
