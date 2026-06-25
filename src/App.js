@@ -179,89 +179,6 @@ function App() {
     setGraphFocus(null);
   };
 
-  // Auto-demo: runs demo scenarios sequentially to show live graph evolution
-  const [demoRunning, setDemoRunning] = useState(false);
-  const demoRef = useRef(false);
-
-  const runAutoDemo = async () => {
-    if (demoRunning) return;
-    setDemoRunning(true);
-    demoRef.current = true;
-
-    // Step 0: Reset and seed
-    await fetch(`${API_URL}/api/demo/reset`, { method: 'POST' });
-    setSelectedNode(null); setLastEvent(null);
-    await new Promise(r => setTimeout(r, 500));
-    await fetch(`${API_URL}/api/demo/seed`, { method: 'POST' });
-    await new Promise(r => setTimeout(r, 1500));
-    if (!demoRef.current) { setDemoRunning(false); return; }
-
-    // Step 1: Conflicting Decision (email)
-    setActivePanel('ingest');
-    startProcessing();
-    await fetch(`${API_URL}/api/ingest/email`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sender: 'Sarah Chen',
-        recipients: ['Marcus Rivera', 'Elena Volkov', 'Lisa Tanaka'],
-        subject: 'Launch Date Update',
-        body: 'Team, after reviewing the pipeline situation, I\'m pushing our launch to April 15. We need the extra time to ensure quality. This overrides the March 20 date.'
-      })
-    });
-    setProcessing(false);
-    await new Promise(r => setTimeout(r, 2000));
-    if (!demoRef.current) { setDemoRunning(false); return; }
-
-    // Step 2: Switch to conflicts tab
-    setActivePanel('conflicts');
-    await new Promise(r => setTimeout(r, 3000));
-    if (!demoRef.current) { setDemoRunning(false); return; }
-
-    // Step 3: New hire announcement (chat)
-    setActivePanel('ingest');
-    startProcessing();
-    await fetch(`${API_URL}/api/ingest/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        channel: '#engineering',
-        sender: 'Elena Volkov',
-        message: 'Great news everyone! We just got approval to hire two senior backend engineers. One will focus on Kubernetes for Project Atlas, and the other on data engineering for the pipeline v2 work. @Aisha and @David please start preparing onboarding plans so we are ready when they join in March.'
-      })
-    });
-    setProcessing(false);
-    await new Promise(r => setTimeout(r, 2000));
-    if (!demoRef.current) { setDemoRunning(false); return; }
-
-    // Step 4: Voice memo with competitive intelligence
-    startProcessing();
-    await fetch(`${API_URL}/api/ingest/voice`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        speaker: 'Marcus Rivera',
-        transcription: 'Quick thought after the investor call today. The lead partner at Horizon Ventures mentioned they\'re also looking at our competitor, DataFlow AI. We need to accelerate Project Atlas delivery to differentiate. I\'m going to ask Elena to pull two engineers from the pipeline v2 project temporarily.',
-        context: 'Post-investor call voice memo'
-      })
-    });
-    setProcessing(false);
-    await new Promise(r => setTimeout(r, 2000));
-    if (!demoRef.current) { setDemoRunning(false); return; }
-
-    // Step 5: Switch to Ask AI
-    setActivePanel('ask');
-    await new Promise(r => setTimeout(r, 1000));
-
-    setDemoRunning(false);
-    demoRef.current = false;
-  };
-
-  const stopDemo = () => {
-    demoRef.current = false;
-    setDemoRunning(false);
-  };
-
   const handleAskAnswer = useCallback((answer, question) => {
     const nodeIds = answer?.evidenceNodeIds || [];
     if (!nodeIds || nodeIds.length === 0) return;
@@ -313,8 +230,7 @@ function App() {
       <header className="app-header">
         <div className="header-left">
           <div className="logo">
-            <span className="logo-icon" role="img" aria-label="brain">&#x1f9e0;</span>
-            <h1>AI Chief of Staff</h1>
+            <h1>BeerGPT</h1>
           </div>
           <span className="subtitle">Organizational Intelligence System</span>
         </div>
@@ -323,15 +239,6 @@ function App() {
             <span className="status-dot"></span>
             {isConnected ? 'Live' : 'Connecting...'}
           </div>
-          {demoRunning ? (
-            <button onClick={stopDemo} className="btn btn-ghost" style={{ borderColor: 'var(--danger)', color: 'var(--danger)' }}>
-              Stop Demo
-            </button>
-          ) : (
-            <button onClick={runAutoDemo} className="btn btn-primary" style={{ background: 'linear-gradient(135deg, #3B82F6, #06B6D4)' }}>
-              Auto Demo
-            </button>
-          )}
           <button onClick={() => setVoiceAgentOpen(true)} className="btn btn-ghost">
             🎙 Voice Agent
           </button>
